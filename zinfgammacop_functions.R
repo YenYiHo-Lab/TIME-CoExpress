@@ -1720,12 +1720,14 @@ function (x, main = "Histogram and Density Estimate of Residuals",
   if (x$Cont == "YES") {
     y1 <- x$y1
     y2 <- x$y2
+    pr.zinf1 <- x$p1gam$fitted.values
+    pr.zinf2 <- x$p2gam$fitted.values
     if (x$VC$margins[1] %in% c(x$VC$m2, x$VC$m3)) {
-      p1 <- distrHsAT(x$y1, x$eta1, x$sigma21, x$nu1, 
+      p1 <- (1-pr.zinf1)*distrHsAT(x$y1, x$eta1, x$sigma21, x$nu1, 
                       x$margins[1], min.dn = x$VC$min.dn, min.pr = x$VC$min.pr, 
-                      max.pr = x$VC$max.pr)$p2
+                      max.pr = x$VC$max.pr)$p2 + pr.zinf1
       y1zero <- which(x$y1 == 0)
-      p1[y1zero] <- x$p1gam$fitted.values[y1zero]
+      p1[y1zero] <- runif(length(y1zero), 0, pr.zinf1[y1zero])
       if (x$VC$margins[1] %in% c("TW")) {
         if (any(x$y1 == 0) == TRUE) 
           p1[x$y1 == 0] <- runif(sum(x$y1 == 0), 
@@ -1733,11 +1735,11 @@ function (x, main = "Histogram and Density Estimate of Residuals",
       }
     }
     if (x$VC$margins[2] %in% c(x$VC$m2, x$VC$m3)) {
-      p2 <- distrHsAT(x$y2, x$eta2, x$sigma22, x$nu2, 
+      p2 <- (1-pr.zinf2)*distrHsAT(x$y2, x$eta2, x$sigma22, x$nu2, 
                       x$margins[2], min.dn = x$VC$min.dn, min.pr = x$VC$min.pr, 
-                      max.pr = x$VC$max.pr)$p2
+                      max.pr = x$VC$max.pr)$p2 + pr.zinf2
       y2zero <- which(x$y2 == 0)
-      p2[y2zero] <- x$p2gam$fitted.values[y2zero]
+      p2[y2zero] <- runif(length(y2zero), 0, pr.zinf2[y2zero])
       if (x$VC$margins[2] %in% c("TW")) {
         if (any(x$y2 == 0) == TRUE) 
           p2[x$y2 == 0] <- runif(sum(x$y2 == 0), 
